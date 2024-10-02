@@ -1,0 +1,8 @@
+defaultPlatforms:
+#- linux/arm64
+- linux/amd64
+
+builds:
+- id: reverstd
+  dir: .
+  main: ./cmd/reverstd

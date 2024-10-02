@@ -221,9 +221,14 @@ func (s *Server) ListenAndServe(ctx context.Context) error {
 		go http.ListenAndServe(s.conf.ManagementAddress, mux)
 	}
 
+	httpTLSConfig := &tls.Config{
+		Certificates: []tls.Certificate{tlsCert},
+		ServerName:   s.conf.ServerName,
+	}
 	httpServer := &http.Server{
-		Addr:    s.conf.HTTPAddress,
-		Handler: s,
+		Addr:      s.conf.HTTPAddress,
+		Handler:   s,
+		TLSConfig: httpTLSConfig,
 	}
 
 	go func() {
@@ -237,7 +242,7 @@ func (s *Server) ListenAndServe(ctx context.Context) error {
 
 	slog.Info("HTTP listener starting...", "addr", httpServer.Addr)
 
-	if err := httpServer.ListenAndServe(); err != nil {
+	if err := httpServer.ListenAndServeTLS("", ""); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}
